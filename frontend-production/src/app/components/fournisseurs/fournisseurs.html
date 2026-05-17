@@ -1,0 +1,312 @@
+<div class="container-fluid">
+
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2 class="page-title">
+        <i class="fas fa-truck me-2 text-secondary"></i>
+        Gestion des Fournisseurs
+      </h2>
+      <p class="page-subtitle">Total : {{fournisseurs.length}} fournisseurs</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-secondary" (click)="openForm()">
+        <i class="fas fa-plus me-2"></i>Nouveau Fournisseur
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Excellents (4-5)</small>
+              <h4 class="mb-0 fw-bold">{{countByNote(4, 5)}}</h4>
+            </div>
+            <i class="fas fa-star fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-warning">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Moyens (2-3)</small>
+              <h4 class="mb-0 fw-bold">{{countByNote(2, 3)}}</h4>
+            </div>
+            <i class="fas fa-star-half fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-danger">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Mauvais (0-1)</small>
+              <h4 class="mb-0 fw-bold">{{countByNote(0, 1)}}</h4>
+            </div>
+            <i class="fas fa-thumbs-down fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-5">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control"
+              placeholder="Rechercher par nom..."
+              [(ngModel)]="searchKeyword"
+              (input)="filterFournisseurs()">
+          </div>
+        </div>
+        <div class="col-md-5">
+          <select class="form-select"
+            [(ngModel)]="filterNote"
+            (change)="filterFournisseurs()">
+            <option value="">Toutes les notes</option>
+            <option value="4">Excellents (note ≥ 4)</option>
+            <option value="2">Moyens (note ≥ 2)</option>
+            <option value="0">Tous</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100"
+            (click)="resetFilters()">
+            <i class="fas fa-refresh"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-{{editMode ? 'edit' : 'plus'}} me-2"></i>
+        {{editMode ? 'Modifier' : 'Nouveau'}} Fournisseur
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Nom <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentFournisseur.nom"
+            [class.is-invalid]="submitted && !currentFournisseur.nom"
+            placeholder="Nom du fournisseur">
+          <div class="invalid-feedback">Le nom est obligatoire</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Contact</label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentFournisseur.contact"
+            placeholder="Nom du contact">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Téléphone</label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentFournisseur.telephone"
+            placeholder="Numéro de téléphone">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control"
+            [(ngModel)]="currentFournisseur.email"
+            [class.is-invalid]="submitted && emailInvalid()"
+            placeholder="Email">
+          <div class="invalid-feedback">Email invalide</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Note (0-5)</label>
+          <div class="d-flex align-items-center gap-3">
+            <input type="range" class="form-range"
+              [(ngModel)]="currentFournisseur.note"
+              min="0" max="5" step="1">
+            <span class="badge fs-6"
+              [class.bg-success]="currentFournisseur.note! >= 4"
+              [class.bg-warning]="currentFournisseur.note! >= 2 && currentFournisseur.note! < 4"
+              [class.bg-danger]="currentFournisseur.note! < 2">
+              {{currentFournisseur.note}}/5
+            </span>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Adresse</label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentFournisseur.adresse"
+            placeholder="Adresse complète">
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" (click)="saveFournisseur()">
+          <i class="fas fa-save me-2"></i>
+          {{editMode ? 'Modifier' : 'Enregistrer'}}
+        </button>
+        <button class="btn btn-secondary" (click)="cancelForm()">
+          <i class="fas fa-times me-2"></i>Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="card">
+    <div class="card-header bg-secondary text-white">
+      <h6 class="mb-0">
+        <i class="fas fa-list me-2"></i>
+        Liste des Fournisseurs ({{filteredFournisseurs.length}})
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="filteredFournisseurs.length === 0"
+        class="text-center p-5 text-muted">
+        <i class="fas fa-truck fa-3x mb-3"></i>
+        <p>Aucun fournisseur trouvé</p>
+      </div>
+      <table class="table table-hover mb-0"
+        *ngIf="filteredFournisseurs.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Contact</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Adresse</th>
+            <th>Note</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of filteredFournisseurs">
+            <td>{{f.id}}</td>
+            <td><strong>{{f.nom}}</strong></td>
+            <td>{{f.contact || 'N/A'}}</td>
+            <td>
+              <a *ngIf="f.telephone"
+                href="tel:{{f.telephone}}">
+                {{f.telephone}}
+              </a>
+              <span *ngIf="!f.telephone">N/A</span>
+            </td>
+            <td>
+              <a *ngIf="f.email"
+                href="mailto:{{f.email}}">
+                {{f.email}}
+              </a>
+              <span *ngIf="!f.email">N/A</span>
+            </td>
+            <td>{{f.adresse || 'N/A'}}</td>
+            <td>
+              <div class="d-flex align-items-center gap-1">
+                <span *ngFor="let star of getStars(f.note || 0)">
+                  <i class="fas fa-star"
+                    [class.text-warning]="star === 'full'"
+                    [class.text-muted]="star === 'empty'"
+                    style="font-size: 12px;">
+                  </i>
+                </span>
+                <span class="badge ms-1"
+                  [class.bg-success]="f.note! >= 4"
+                  [class.bg-warning]="f.note! >= 2 && f.note! < 4"
+                  [class.bg-danger]="f.note! < 2">
+                  {{f.note}}/5
+                </span>
+              </div>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-info me-1"
+                (click)="viewFournisseur(f)"
+                title="Détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning me-1"
+                (click)="editFournisseur(f)"
+                title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger"
+                (click)="deleteFournisseur(f.id!)"
+                title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal détails -->
+  <div class="modal-overlay" *ngIf="selectedFournisseur"
+    (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="card">
+        <div class="card-header bg-secondary text-white
+          d-flex justify-content-between">
+          <h5 class="mb-0">
+            <i class="fas fa-truck me-2"></i>
+            {{selectedFournisseur.nom}}
+          </h5>
+          <button class="btn btn-sm btn-light"
+            (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>Nom</th>
+              <td>{{selectedFournisseur.nom}}</td>
+            </tr>
+            <tr>
+              <th>Contact</th>
+              <td>{{selectedFournisseur.contact || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Téléphone</th>
+              <td>{{selectedFournisseur.telephone || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>{{selectedFournisseur.email || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Adresse</th>
+              <td>{{selectedFournisseur.adresse || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Note</th>
+              <td>
+                <span *ngFor="let star of getStars(selectedFournisseur.note || 0)">
+                  <i class="fas fa-star"
+                    [class.text-warning]="star === 'full'"
+                    [class.text-muted]="star === 'empty'">
+                  </i>
+                </span>
+                {{selectedFournisseur.note}}/5
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

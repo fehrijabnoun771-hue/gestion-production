@@ -1,0 +1,48 @@
+<nav class="sidebar">
+  <div class="brand text-center">
+    <h6 class="text-white fw-bold mb-0">
+      <i class="fas fa-industry me-2"></i>
+      Gestion Production
+    </h6>
+  </div>
+
+  <a [routerLink]="['/dashboard']" routerLinkActive="active">
+    <i class="fas fa-tachometer-alt"></i>
+    Dashboard
+  </a>
+
+  <a [routerLink]="['/machines']" routerLinkActive="active">
+    <i class="fas fa-cogs"></i>
+    Machines
+  </a>
+
+  <a [routerLink]="['/techniciens']" routerLinkActive="active">
+    <i class="fas fa-users"></i>
+    Techniciens
+  </a>
+
+  <a [routerLink]="['/produits']" routerLinkActive="active">
+    <i class="fas fa-box"></i>
+    Produits
+  </a>
+
+  <a [routerLink]="['/maintenances']" routerLinkActive="active">
+    <i class="fas fa-wrench"></i>
+    Maintenances
+  </a>
+
+  <a [routerLink]="['/ordres']" routerLinkActive="active">
+    <i class="fas fa-clipboard-list"></i>
+    Ordres de Fabrication
+  </a>
+
+  <a [routerLink]="['/alertes']" routerLinkActive="active">
+    <i class="fas fa-bell"></i>
+    Alertes
+  </a>
+
+  <a [routerLink]="['/fournisseurs']" routerLinkActive="active">
+    <i class="fas fa-truck"></i>
+    Fournisseurs
+  </a>
+</nav>

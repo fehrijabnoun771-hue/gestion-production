@@ -1,0 +1,288 @@
+<div class="container-fluid">
+
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2 class="page-title">
+        <i class="fas fa-users me-2 text-success"></i>
+        Gestion des Techniciens
+      </h2>
+      <p class="page-subtitle">Total : {{techniciens.length}} techniciens</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-success" (click)="openForm()">
+        <i class="fas fa-plus me-2"></i>Nouveau Technicien
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card text-white bg-success">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Total Techniciens</small>
+              <h4 class="mb-0 fw-bold">{{techniciens.length}}</h4>
+            </div>
+            <i class="fas fa-users fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-primary">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Assignés</small>
+              <h4 class="mb-0 fw-bold">{{countAssignes()}}</h4>
+            </div>
+            <i class="fas fa-link fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white bg-warning">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Non Assignés</small>
+              <h4 class="mb-0 fw-bold">{{countNonAssignes()}}</h4>
+            </div>
+            <i class="fas fa-user-slash fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recherche -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control"
+              placeholder="Rechercher par nom..."
+              [(ngModel)]="searchKeyword"
+              (input)="filterTechniciens()">
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select class="form-select"
+            [(ngModel)]="filterAssigne"
+            (change)="filterTechniciens()">
+            <option value="">Tous les techniciens</option>
+            <option value="assigne">Assignés à une machine</option>
+            <option value="libre">Non assignés</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100"
+            (click)="resetFilters()">
+            <i class="fas fa-refresh"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-{{editMode ? 'edit' : 'plus'}} me-2"></i>
+        {{editMode ? 'Modifier' : 'Nouveau'}} Technicien
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Nom <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentTechnicien.nom"
+            [class.is-invalid]="submitted && !currentTechnicien.nom"
+            placeholder="Nom complet">
+          <div class="invalid-feedback">Le nom est obligatoire</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Téléphone</label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentTechnicien.telephone"
+            placeholder="Numéro de téléphone">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control"
+            [(ngModel)]="currentTechnicien.email"
+            [class.is-invalid]="submitted && emailInvalid()"
+            placeholder="Email professionnel">
+          <div class="invalid-feedback">Email invalide</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Machine assignée</label>
+          <select class="form-select"
+            [(ngModel)]="selectedMachineId"
+            (change)="onMachineChange()">
+            <option [value]="null">Aucune machine</option>
+            <option *ngFor="let m of machines" [value]="m.id">
+              {{m.nom}} ({{m.etat}})
+            </option>
+          </select>
+        </div>
+        <div class="col-12 mb-3">
+          <label class="form-label">Compétences</label>
+          <textarea class="form-control" rows="3"
+            [(ngModel)]="currentTechnicien.competences"
+            placeholder="Ex: Mécanique, Électricité, Soudure...">
+          </textarea>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" (click)="saveTechnicien()">
+          <i class="fas fa-save me-2"></i>
+          {{editMode ? 'Modifier' : 'Enregistrer'}}
+        </button>
+        <button class="btn btn-secondary" (click)="cancelForm()">
+          <i class="fas fa-times me-2"></i>Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="card">
+    <div class="card-header bg-success text-white">
+      <h6 class="mb-0">
+        <i class="fas fa-list me-2"></i>
+        Liste des Techniciens ({{filteredTechniciens.length}})
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="filteredTechniciens.length === 0"
+        class="text-center p-5 text-muted">
+        <i class="fas fa-users fa-3x mb-3"></i>
+        <p>Aucun technicien trouvé</p>
+      </div>
+      <table class="table table-hover mb-0"
+        *ngIf="filteredTechniciens.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Compétences</th>
+            <th>Machine Assignée</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of filteredTechniciens">
+            <td>{{t.id}}</td>
+            <td><strong>{{t.nom}}</strong></td>
+            <td>{{t.telephone || 'N/A'}}</td>
+            <td>{{t.email || 'N/A'}}</td>
+            <td>
+              <span *ngIf="t.competences">
+                <span *ngFor="let c of getCompetences(t.competences)"
+                  class="badge bg-light text-dark me-1 mb-1">
+                  {{c}}
+                </span>
+              </span>
+              <span *ngIf="!t.competences" class="text-muted">N/A</span>
+            </td>
+            <td>
+              <span class="badge bg-primary"
+                *ngIf="t.machineAssignee">
+                <i class="fas fa-cogs me-1"></i>
+                {{t.machineAssignee!.nom}}
+              </span>
+              <span class="badge bg-secondary"
+                *ngIf="!t.machineAssignee">
+                Non assigné
+              </span>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-info me-1"
+                (click)="viewTechnicien(t)" title="Détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning me-1"
+                (click)="editTechnicien(t)" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger"
+                (click)="deleteTechnicien(t.id!)" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal détails -->
+  <div class="modal-overlay" *ngIf="selectedTechnicien"
+    (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="card">
+        <div class="card-header bg-success text-white
+          d-flex justify-content-between">
+          <h5 class="mb-0">
+            <i class="fas fa-user me-2"></i>
+            {{selectedTechnicien.nom}}
+          </h5>
+          <button class="btn btn-sm btn-light"
+            (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>ID</th>
+              <td>{{selectedTechnicien.id}}</td>
+            </tr>
+            <tr>
+              <th>Nom</th>
+              <td>{{selectedTechnicien.nom}}</td>
+            </tr>
+            <tr>
+              <th>Téléphone</th>
+              <td>{{selectedTechnicien.telephone || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>{{selectedTechnicien.email || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Compétences</th>
+              <td>{{selectedTechnicien.competences || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Machine assignée</th>
+              <td>
+                <span *ngIf="selectedTechnicien.machineAssignee"
+                  class="badge bg-primary">
+                  {{selectedTechnicien.machineAssignee!.nom}}
+                </span>
+                <span *ngIf="!selectedTechnicien.machineAssignee">
+                  Non assigné
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

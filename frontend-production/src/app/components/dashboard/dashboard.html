@@ -1,0 +1,477 @@
+<div class="container-fluid">
+
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="page-title">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+            Tableau de Bord
+          </h2>
+          <p class="page-subtitle">
+            Système de Gestion de Production — Vue générale
+          </p>
+        </div>
+        <div class="text-muted">
+          <i class="fas fa-calendar me-2"></i>
+          {{today | date:'EEEE dd MMMM yyyy'}}
+        </div>
+      </div>
+      <hr>
+    </div>
+  </div>
+
+  <!-- Cartes statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card stat-card bg-primary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Total Machines</p>
+              <h2 class="fw-bold mb-0">{{totalMachines}}</h2>
+              <small class="opacity-75">
+                {{machinesDisponibles}} disponibles
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-cogs fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card bg-success">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Techniciens</p>
+              <h2 class="fw-bold mb-0">{{totalTechniciens}}</h2>
+              <small class="opacity-75">Équipe technique</small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-users fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card bg-warning">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Ordres de Fabrication</p>
+              <h2 class="fw-bold mb-0">{{totalOrdres}}</h2>
+              <small class="opacity-75">
+                {{ordresEnCours}} en cours
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-clipboard-list fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card bg-danger">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Alertes</p>
+              <h2 class="fw-bold mb-0">{{totalAlertes}}</h2>
+              <small class="opacity-75">Non lues</small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-bell fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deuxième ligne de stats -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card stat-card bg-info">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Produits</p>
+              <h2 class="fw-bold mb-0">{{totalProduits}}</h2>
+              <small class="opacity-75">
+                {{produitsStockFaible}} stock faible
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-box fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card bg-secondary">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75">Maintenances</p>
+              <h2 class="fw-bold mb-0">{{totalMaintenances}}</h2>
+              <small class="opacity-75">
+                {{maintenancesPlanifiees}} planifiées
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-wrench fa-2x opacity-75"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card"
+        style="background: linear-gradient(135deg, #6f42c1, #9b59b6);">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75 text-white">Fournisseurs</p>
+              <h2 class="fw-bold mb-0 text-white">{{totalFournisseurs}}</h2>
+              <small class="opacity-75 text-white">Partenaires</small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-truck fa-2x opacity-75 text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card stat-card"
+        style="background: linear-gradient(135deg, #e67e22, #f39c12);">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="mb-1 opacity-75 text-white">Machines En Panne</p>
+              <h2 class="fw-bold mb-0 text-white">{{machinesEnPanne}}</h2>
+              <small class="opacity-75 text-white">Intervention requise</small>
+            </div>
+            <div class="stat-icon">
+              <i class="fas fa-exclamation-triangle fa-2x opacity-75 text-white"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes urgentes -->
+  <div class="row mb-4" *ngIf="alertes.length > 0">
+    <div class="col-12">
+      <div class="alert alert-danger d-flex align-items-center">
+        <i class="fas fa-bell me-3 fa-lg"></i>
+        <div>
+          <strong>{{alertes.length}} alerte(s) non lue(s) !</strong>
+          Vérifiez les alertes pour prendre les mesures nécessaires.
+        </div>
+        <a routerLink="/alertes"
+          class="btn btn-danger btn-sm ms-auto">
+          Voir les alertes
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Machines et Ordres -->
+  <div class="row mb-4">
+
+    <!-- État des Machines -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white
+          d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-cogs me-2"></i>
+            État des Machines
+          </h6>
+          <a routerLink="/machines"
+            class="btn btn-sm btn-light">
+            Voir tout
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="machines.length === 0"
+            class="text-center p-4 text-muted">
+            <i class="fas fa-cogs fa-2x mb-2"></i>
+            <p>Aucune machine</p>
+          </div>
+          <table class="table table-hover mb-0"
+            *ngIf="machines.length > 0">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>État</th>
+                <th>Maintenance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let machine of machines | slice:0:5">
+                <td>
+                  <strong>{{machine.nom}}</strong>
+                </td>
+                <td>
+                  <span class="badge"
+                    [class.bg-success]="machine.etat==='DISPONIBLE'"
+                    [class.bg-warning]="machine.etat==='EN_MAINTENANCE'"
+                    [class.bg-danger]="machine.etat==='EN_PANNE'"
+                    [class.bg-secondary]="machine.etat==='ARRETEE'">
+                    {{machine.etat}}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    [class.text-danger]="isMaintenanceSoon(machine)"
+                    [class.fw-bold]="isMaintenanceSoon(machine)">
+                    {{machine.maintenanceProchaine || 'N/A'}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ordres de Fabrication -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-warning text-white
+          d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-clipboard-list me-2"></i>
+            Ordres de Fabrication Récents
+          </h6>
+          <a routerLink="/ordres"
+            class="btn btn-sm btn-light">
+            Voir tout
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="ordres.length === 0"
+            class="text-center p-4 text-muted">
+            <i class="fas fa-clipboard fa-2x mb-2"></i>
+            <p>Aucun ordre</p>
+          </div>
+          <table class="table table-hover mb-0"
+            *ngIf="ordres.length > 0">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Qté</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ordre of ordres | slice:0:5">
+                <td>{{ordre.produit?.nom || 'N/A'}}</td>
+                <td>{{ordre.quantite}}</td>
+                <td>
+                  <span class="badge"
+                    [class.bg-danger]="ordre.priorite==='URGENTE'"
+                    [class.bg-warning]="ordre.priorite==='HAUTE'"
+                    [class.bg-info]="ordre.priorite==='NORMALE'"
+                    [class.bg-secondary]="ordre.priorite==='BASSE'">
+                    {{ordre.priorite}}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge"
+                    [class.bg-secondary]="ordre.statut==='EN_ATTENTE'"
+                    [class.bg-primary]="ordre.statut==='EN_COURS'"
+                    [class.bg-success]="ordre.statut==='TERMINE'"
+                    [class.bg-danger]="ordre.statut==='ANNULE'">
+                    {{ordre.statut}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Maintenances et Produits -->
+  <div class="row mb-4">
+
+    <!-- Maintenances planifiées -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-info text-white
+          d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-wrench me-2"></i>
+            Maintenances Planifiées
+          </h6>
+          <a routerLink="/maintenances"
+            class="btn btn-sm btn-light">
+            Voir tout
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="maintenances.length === 0"
+            class="text-center p-4 text-muted">
+            <i class="fas fa-wrench fa-2x mb-2"></i>
+            <p>Aucune maintenance planifiée</p>
+          </div>
+          <table class="table table-hover mb-0"
+            *ngIf="maintenances.length > 0">
+            <thead>
+              <tr>
+                <th>Machine</th>
+                <th>Technicien</th>
+                <th>Date</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of maintenances | slice:0:5">
+                <td>{{m.machine?.nom || 'N/A'}}</td>
+                <td>{{m.technicien?.nom || 'N/A'}}</td>
+                <td>{{m.dateMaintenance}}</td>
+                <td>
+                  <span class="badge"
+                    [class.bg-secondary]="m.statut==='PLANIFIEE'"
+                    [class.bg-primary]="m.statut==='EN_COURS'"
+                    [class.bg-success]="m.statut==='TERMINEE'"
+                    [class.bg-danger]="m.statut==='ANNULEE'">
+                    {{m.statut}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Produits stock faible -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-danger text-white
+          d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            Produits Stock Faible
+          </h6>
+          <a routerLink="/produits"
+            class="btn btn-sm btn-light">
+            Voir tout
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="produitsStockFaibleList.length === 0"
+            class="text-center p-4 text-muted">
+            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+            <p>Tous les stocks sont suffisants</p>
+          </div>
+          <table class="table table-hover mb-0"
+            *ngIf="produitsStockFaibleList.length > 0">
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Type</th>
+                <th>Stock</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of produitsStockFaibleList | slice:0:5">
+                <td>{{p.nom}}</td>
+                <td>{{p.type || 'N/A'}}</td>
+                <td>
+                  <span class="badge"
+                    [class.bg-danger]="p.stock === 0"
+                    [class.bg-warning]="p.stock! > 0">
+                    {{p.stock}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes récentes -->
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-danger text-white
+          d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="fas fa-bell me-2"></i>
+            Alertes Récentes
+          </h6>
+          <a routerLink="/alertes"
+            class="btn btn-sm btn-light">
+            Voir tout
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="alertes.length === 0"
+            class="text-center p-4">
+            <i class="fas fa-check-circle fa-3x text-success"></i>
+            <p class="mt-2 text-muted">Aucune alerte non lue !</p>
+          </div>
+          <table class="table table-hover mb-0"
+            *ngIf="alertes.length > 0">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Message</th>
+                <th>Machine</th>
+                <th>Produit</th>
+                <th>Date</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let alerte of alertes | slice:0:5">
+                <td>
+                  <span class="badge bg-danger">
+                    {{alerte.type}}
+                  </span>
+                </td>
+                <td>{{alerte.message}}</td>
+                <td>{{alerte.machine?.nom || 'N/A'}}</td>
+                <td>{{alerte.produit?.nom || 'N/A'}}</td>
+                <td>
+                  {{alerte.dateAlerte | date:'dd/MM/yyyy HH:mm'}}
+                </td>
+                <td>
+                  <span class="badge"
+                    [class.bg-warning]="alerte.statut==='NON_LU'"
+                    [class.bg-success]="alerte.statut==='LU'">
+                    {{alerte.statut}}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

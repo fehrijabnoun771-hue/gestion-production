@@ -1,0 +1,382 @@
+<div class="container-fluid">
+
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2 class="page-title">
+        <i class="fas fa-clipboard-list me-2 text-warning"></i>
+        Ordres de Fabrication
+      </h2>
+      <p class="page-subtitle">Total : {{ordres.length}} ordres</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-warning" (click)="openForm()">
+        <i class="fas fa-plus me-2"></i>Nouvel Ordre
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-secondary">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>En Attente</small>
+              <h4 class="mb-0 fw-bold">
+                {{countByStatut('EN_ATTENTE')}}
+              </h4>
+            </div>
+            <i class="fas fa-clock fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>En Cours</small>
+              <h4 class="mb-0 fw-bold">
+                {{countByStatut('EN_COURS')}}
+              </h4>
+            </div>
+            <i class="fas fa-spinner fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Terminés</small>
+              <h4 class="mb-0 fw-bold">
+                {{countByStatut('TERMINE')}}
+              </h4>
+            </div>
+            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-danger">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Annulés</small>
+              <h4 class="mb-0 fw-bold">
+                {{countByStatut('ANNULE')}}
+              </h4>
+            </div>
+            <i class="fas fa-times-circle fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control"
+              placeholder="Rechercher par produit..."
+              [(ngModel)]="searchKeyword"
+              (input)="filterOrdres()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select"
+            [(ngModel)]="filterStatut"
+            (change)="filterOrdres()">
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En Attente</option>
+            <option value="EN_COURS">En Cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select"
+            [(ngModel)]="filterPriorite"
+            (change)="filterOrdres()">
+            <option value="">Toutes les priorités</option>
+            <option value="URGENTE">Urgente</option>
+            <option value="HAUTE">Haute</option>
+            <option value="NORMALE">Normale</option>
+            <option value="BASSE">Basse</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100"
+            (click)="resetFilters()">
+            <i class="fas fa-refresh"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header bg-warning text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-{{editMode ? 'edit' : 'plus'}} me-2"></i>
+        {{editMode ? 'Modifier' : 'Nouvel'}} Ordre de Fabrication
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Produit <span class="text-danger">*</span>
+          </label>
+          <select class="form-select"
+            [(ngModel)]="selectedProduitId"
+            [class.is-invalid]="submitted && !selectedProduitId"
+            (change)="onProduitChange()">
+            <option [value]="null">Sélectionner un produit</option>
+            <option *ngFor="let p of produits" [value]="p.id">
+              {{p.nom}} (Stock: {{p.stock}})
+            </option>
+          </select>
+          <div class="invalid-feedback">
+            Le produit est obligatoire
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Quantité <span class="text-danger">*</span>
+          </label>
+          <input type="number" class="form-control"
+            [(ngModel)]="currentOrdre.quantite"
+            [class.is-invalid]="submitted && currentOrdre.quantite < 1"
+            min="1"
+            placeholder="Quantité à produire">
+          <div class="invalid-feedback">
+            La quantité doit être au moins 1
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Machine</label>
+          <select class="form-select"
+            [(ngModel)]="selectedMachineId"
+            (change)="onMachineChange()">
+            <option [value]="null">Sélectionner une machine</option>
+            <option *ngFor="let m of machines" [value]="m.id">
+              {{m.nom}} — {{m.etat}}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Technicien</label>
+          <select class="form-select"
+            [(ngModel)]="selectedTechnicienId"
+            (change)="onTechnicienChange()">
+            <option [value]="null">Sélectionner un technicien</option>
+            <option *ngFor="let t of techniciens" [value]="t.id">
+              {{t.nom}}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date de fin prévue</label>
+          <input type="date" class="form-control"
+            [(ngModel)]="currentOrdre.dateFin">
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Priorité</label>
+          <select class="form-select"
+            [(ngModel)]="currentOrdre.priorite">
+            <option value="BASSE">Basse</option>
+            <option value="NORMALE">Normale</option>
+            <option value="HAUTE">Haute</option>
+            <option value="URGENTE">Urgente</option>
+          </select>
+        </div>
+        <div class="col-md-3 mb-3">
+          <label class="form-label">Statut</label>
+          <select class="form-select"
+            [(ngModel)]="currentOrdre.statut">
+            <option value="EN_ATTENTE">En Attente</option>
+            <option value="EN_COURS">En Cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="ANNULE">Annulé</option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" (click)="saveOrdre()">
+          <i class="fas fa-save me-2"></i>
+          {{editMode ? 'Modifier' : 'Enregistrer'}}
+        </button>
+        <button class="btn btn-secondary" (click)="cancelForm()">
+          <i class="fas fa-times me-2"></i>Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="card">
+    <div class="card-header bg-warning text-white">
+      <h6 class="mb-0">
+        <i class="fas fa-list me-2"></i>
+        Liste des Ordres ({{filteredOrdres.length}})
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="filteredOrdres.length === 0"
+        class="text-center p-5 text-muted">
+        <i class="fas fa-clipboard fa-3x mb-3"></i>
+        <p>Aucun ordre trouvé</p>
+      </div>
+      <table class="table table-hover mb-0"
+        *ngIf="filteredOrdres.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Produit</th>
+            <th>Qté</th>
+            <th>Machine</th>
+            <th>Technicien</th>
+            <th>Date fin</th>
+            <th>Priorité</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ordre of filteredOrdres"
+            [class.table-danger]="ordre.priorite === 'URGENTE'"
+            [class.table-warning]="ordre.priorite === 'HAUTE'">
+            <td>{{ordre.id}}</td>
+            <td><strong>{{ordre.produit?.nom || 'N/A'}}</strong></td>
+            <td>{{ordre.quantite}}</td>
+            <td>{{ordre.machine?.nom || 'N/A'}}</td>
+            <td>{{ordre.technicien?.nom || 'N/A'}}</td>
+            <td>{{ordre.dateFin || 'N/A'}}</td>
+            <td>
+              <span class="badge"
+                [class.bg-secondary]="ordre.priorite === 'BASSE'"
+                [class.bg-info]="ordre.priorite === 'NORMALE'"
+                [class.bg-warning]="ordre.priorite === 'HAUTE'"
+                [class.bg-danger]="ordre.priorite === 'URGENTE'">
+                {{ordre.priorite}}
+              </span>
+            </td>
+            <td>
+              <select class="form-select form-select-sm"
+                [(ngModel)]="ordre.statut"
+                (change)="changeStatut(ordre.id!, ordre.statut!)">
+                <option value="EN_ATTENTE">En Attente</option>
+                <option value="EN_COURS">En Cours</option>
+                <option value="TERMINE">Terminé</option>
+                <option value="ANNULE">Annulé</option>
+              </select>
+            </td>
+            <td>
+              <button class="btn btn-sm btn-info me-1"
+                (click)="viewOrdre(ordre)"
+                title="Détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning me-1"
+                (click)="editOrdre(ordre)"
+                title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger"
+                (click)="deleteOrdre(ordre.id!)"
+                title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal détails -->
+  <div class="modal-overlay" *ngIf="selectedOrdre"
+    (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="card">
+        <div class="card-header bg-warning text-white
+          d-flex justify-content-between">
+          <h5 class="mb-0">
+            <i class="fas fa-clipboard-list me-2"></i>
+            Ordre #{{selectedOrdre.id}}
+          </h5>
+          <button class="btn btn-sm btn-light"
+            (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>Produit</th>
+              <td>{{selectedOrdre.produit?.nom || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Quantité</th>
+              <td>{{selectedOrdre.quantite}}</td>
+            </tr>
+            <tr>
+              <th>Machine</th>
+              <td>{{selectedOrdre.machine?.nom || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Technicien</th>
+              <td>{{selectedOrdre.technicien?.nom || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Date création</th>
+              <td>{{selectedOrdre.dateCreation || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Date fin</th>
+              <td>{{selectedOrdre.dateFin || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Priorité</th>
+              <td>
+                <span class="badge"
+                  [class.bg-secondary]="selectedOrdre.priorite === 'BASSE'"
+                  [class.bg-info]="selectedOrdre.priorite === 'NORMALE'"
+                  [class.bg-warning]="selectedOrdre.priorite === 'HAUTE'"
+                  [class.bg-danger]="selectedOrdre.priorite === 'URGENTE'">
+                  {{selectedOrdre.priorite}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>Statut</th>
+              <td>
+                <span class="badge"
+                  [class.bg-secondary]="selectedOrdre.statut === 'EN_ATTENTE'"
+                  [class.bg-primary]="selectedOrdre.statut === 'EN_COURS'"
+                  [class.bg-success]="selectedOrdre.statut === 'TERMINE'"
+                  [class.bg-danger]="selectedOrdre.statut === 'ANNULE'">
+                  {{selectedOrdre.statut}}
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

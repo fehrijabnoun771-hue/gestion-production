@@ -1,0 +1,337 @@
+<div class="container-fluid">
+
+  <div class="row mb-4">
+    <div class="col-md-8">
+      <h2 class="page-title">
+        <i class="fas fa-box me-2 text-warning"></i>
+        Gestion des Produits
+      </h2>
+      <p class="page-subtitle">Total : {{produits.length}} produits</p>
+    </div>
+    <div class="col-md-4 text-end">
+      <button class="btn btn-warning" (click)="openForm()">
+        <i class="fas fa-plus me-2"></i>Nouveau Produit
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Total Produits</small>
+              <h4 class="mb-0 fw-bold">{{produits.length}}</h4>
+            </div>
+            <i class="fas fa-box fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Stock OK</small>
+              <h4 class="mb-0 fw-bold">{{countStockOk()}}</h4>
+            </div>
+            <i class="fas fa-check-circle fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-danger">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Stock Faible</small>
+              <h4 class="mb-0 fw-bold">{{countStockFaible()}}</h4>
+            </div>
+            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-secondary">
+        <div class="card-body py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small>Stock Épuisé</small>
+              <h4 class="mb-0 fw-bold">{{countStockEpuise()}}</h4>
+            </div>
+            <i class="fas fa-times-circle fa-2x opacity-75"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input type="text" class="form-control"
+              placeholder="Rechercher par nom..."
+              [(ngModel)]="searchKeyword"
+              (input)="filterProduits()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select"
+            [(ngModel)]="filterType"
+            (change)="filterProduits()">
+            <option value="">Tous les types</option>
+            <option value="MATIERE_PREMIERE">Matière Première</option>
+            <option value="PRODUIT_FINI">Produit Fini</option>
+            <option value="SEMI_FINI">Semi-Fini</option>
+            <option value="CONSOMMABLE">Consommable</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <select class="form-select"
+            [(ngModel)]="filterStock"
+            (change)="filterProduits()">
+            <option value="">Tous les stocks</option>
+            <option value="ok">Stock OK (> 10)</option>
+            <option value="faible">Stock Faible (1-10)</option>
+            <option value="epuise">Stock Épuisé (0)</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-secondary w-100"
+            (click)="resetFilters()">
+            <i class="fas fa-refresh"></i> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire -->
+  <div class="card mb-4" *ngIf="showForm">
+    <div class="card-header bg-warning text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-{{editMode ? 'edit' : 'plus'}} me-2"></i>
+        {{editMode ? 'Modifier' : 'Nouveau'}} Produit
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Nom <span class="text-danger">*</span>
+          </label>
+          <input type="text" class="form-control"
+            [(ngModel)]="currentProduit.nom"
+            [class.is-invalid]="submitted && !currentProduit.nom"
+            placeholder="Nom du produit">
+          <div class="invalid-feedback">Le nom est obligatoire</div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Type</label>
+          <select class="form-select"
+            [(ngModel)]="currentProduit.type">
+            <option value="">Sélectionner un type</option>
+            <option value="MATIERE_PREMIERE">Matière Première</option>
+            <option value="PRODUIT_FINI">Produit Fini</option>
+            <option value="SEMI_FINI">Semi-Fini</option>
+            <option value="CONSOMMABLE">Consommable</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">
+            Stock <span class="text-danger">*</span>
+          </label>
+          <input type="number" class="form-control"
+            [(ngModel)]="currentProduit.stock"
+            [class.is-invalid]="submitted && currentProduit.stock! < 0"
+            min="0"
+            placeholder="Quantité en stock">
+          <div class="invalid-feedback">
+            Le stock ne peut pas être négatif
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Prix (DT)</label>
+          <input type="number" class="form-control"
+            [(ngModel)]="currentProduit.prix"
+            min="0"
+            step="0.01"
+            placeholder="Prix unitaire">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Fournisseur</label>
+          <select class="form-select"
+            [(ngModel)]="selectedFournisseurId"
+            (change)="onFournisseurChange()">
+            <option [value]="null">Aucun fournisseur</option>
+            <option *ngFor="let f of fournisseurs" [value]="f.id">
+              {{f.nom}}
+            </option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Catégorie</label>
+          <select class="form-select"
+            [(ngModel)]="selectedCategorieId"
+            (change)="onCategorieChange()">
+            <option [value]="null">Aucune catégorie</option>
+            <option *ngFor="let c of categories" [value]="c.id">
+              {{c.nom}}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success" (click)="saveProduit()">
+          <i class="fas fa-save me-2"></i>
+          {{editMode ? 'Modifier' : 'Enregistrer'}}
+        </button>
+        <button class="btn btn-secondary" (click)="cancelForm()">
+          <i class="fas fa-times me-2"></i>Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau -->
+  <div class="card">
+    <div class="card-header bg-warning text-white">
+      <h6 class="mb-0">
+        <i class="fas fa-list me-2"></i>
+        Liste des Produits ({{filteredProduits.length}})
+      </h6>
+    </div>
+    <div class="card-body p-0">
+      <div *ngIf="filteredProduits.length === 0"
+        class="text-center p-5 text-muted">
+        <i class="fas fa-box fa-3x mb-3"></i>
+        <p>Aucun produit trouvé</p>
+      </div>
+      <table class="table table-hover mb-0"
+        *ngIf="filteredProduits.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Type</th>
+            <th>Stock</th>
+            <th>Prix</th>
+            <th>Fournisseur</th>
+            <th>Catégorie</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let p of filteredProduits"
+            [class.table-danger]="p.stock === 0"
+            [class.table-warning]="p.stock! > 0 && p.stock! <= 10">
+            <td>{{p.id}}</td>
+            <td><strong>{{p.nom}}</strong></td>
+            <td>
+              <span class="badge bg-info">
+                {{p.type || 'N/A'}}
+              </span>
+            </td>
+            <td>
+              <span class="badge"
+                [class.bg-success]="p.stock! > 10"
+                [class.bg-warning]="p.stock! > 0 && p.stock! <= 10"
+                [class.bg-danger]="p.stock === 0">
+                {{p.stock}}
+                <i class="fas fa-exclamation-triangle ms-1"
+                  *ngIf="p.stock! <= 10"></i>
+              </span>
+            </td>
+            <td>{{p.prix ? (p.prix + ' DT') : 'N/A'}}</td>
+            <td>{{p.fournisseur?.nom || 'N/A'}}</td>
+            <td>{{p.categorie?.nom || 'N/A'}}</td>
+            <td>
+              <button class="btn btn-sm btn-info me-1"
+                (click)="viewProduit(p)" title="Détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning me-1"
+                (click)="editProduit(p)" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-sm btn-danger"
+                (click)="deleteProduit(p.id!)" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal détails -->
+  <div class="modal-overlay" *ngIf="selectedProduit"
+    (click)="closeModal()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="card">
+        <div class="card-header bg-warning text-white
+          d-flex justify-content-between">
+          <h5 class="mb-0">
+            <i class="fas fa-box me-2"></i>
+            {{selectedProduit.nom}}
+          </h5>
+          <button class="btn btn-sm btn-light"
+            (click)="closeModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <table class="table">
+            <tr>
+              <th>ID</th>
+              <td>{{selectedProduit.id}}</td>
+            </tr>
+            <tr>
+              <th>Nom</th>
+              <td>{{selectedProduit.nom}}</td>
+            </tr>
+            <tr>
+              <th>Type</th>
+              <td>{{selectedProduit.type || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Stock</th>
+              <td>
+                <span class="badge"
+                  [class.bg-success]="selectedProduit.stock! > 10"
+                  [class.bg-warning]="selectedProduit.stock! > 0 && selectedProduit.stock! <= 10"
+                  [class.bg-danger]="selectedProduit.stock === 0">
+                  {{selectedProduit.stock}}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>Prix</th>
+              <td>{{selectedProduit.prix ? (selectedProduit.prix + ' DT') : 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Fournisseur</th>
+              <td>{{selectedProduit.fournisseur?.nom || 'N/A'}}</td>
+            </tr>
+            <tr>
+              <th>Catégorie</th>
+              <td>{{selectedProduit.categorie?.nom || 'N/A'}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
