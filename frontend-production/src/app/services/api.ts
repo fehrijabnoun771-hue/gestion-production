@@ -102,7 +102,9 @@ export interface PieceRechange {
 })
 export class Api {
 
-  private baseUrl = 'http://localhost:8080/api';
+  private baseUrl = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080/api'
+  : '/api';
 
   constructor(private http: HttpClient) {}
 
